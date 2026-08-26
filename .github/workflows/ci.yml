@@ -1,0 +1,47 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o app ./cmd/deployment
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-binary
+          path: app
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-binary
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ github.run_number }}" app \
+            --repo "${{ github.repository }}" \
+            --title "v${{ github.run_number }}" \
+            --notes "Automated release from commit ${{ github.sha }}"

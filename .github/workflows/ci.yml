@@ -50,6 +50,10 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-binary
+
       - name: Install Cloudflared
         run: |
           curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg \
@@ -67,12 +71,26 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github_ci
           chmod 600 ~/.ssh/github_ci
 
-      - name: Run command in server
+      - name: Copy binary to vps
+        run: |
+          scp \
+            -i ~/.ssh/github_ci \
+            -o StrictHostKeyChecking=no \
+            -o ProxyCommand="cloudflared access ssh --hostname %h" \
+            app root@ssh.subratamondal.dev/opt/app/app
+
+      - name: Run container in server
         run: |
           ssh \
             -i ~/.ssh/github_ci \
             -o StrictHostKeyChecking=no \
             -o ProxyCommand="cloudflared access ssh --hostname %h" \
-            root@ssh.subratamondal.dev \
-            'echo "Connected"; whoami; hostname'
+            root@ssh.subratamondal.dev << EOF
+            set -e
+            cd /opt/app
+
+            ls
+            docker --version
+            echo "copy is done"
+            EOF
 

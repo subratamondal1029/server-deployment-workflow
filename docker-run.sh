@@ -8,7 +8,15 @@ fi
 
 V="$1"
 
+docker build -t "server:$V" .
+
 docker stop server || true
 docker rm server || true
 
-docker run -d --name server --restart unless-stopped -p 8000:8000 server:$V
+docker run -d --name server --restart unless-stopped -p 8000:8000 "server:$V"
+
+sleep 2
+docker ps --filter "name=server" --filter "status=running" -q | grep -q . || {
+  echo "Container failed to start" >&2
+  exit 1
+}

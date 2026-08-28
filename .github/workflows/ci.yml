@@ -86,11 +86,11 @@ jobs:
             -o StrictHostKeyChecking=no \
             -o ProxyCommand="cloudflared access ssh --hostname %h" \
             root@ssh.subratamondal.dev << EOF
-            set -e
-            cd /opt/app
-
-            ls
-            docker --version
-            echo "copy is done"
-            EOF
+          set -e
+          cd /opt/app
+          chmod +x ./app
+          ls -l
+          docker --version
+          echo "copy is done"
+          EOF
 

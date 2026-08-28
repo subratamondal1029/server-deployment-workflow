@@ -71,6 +71,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, World!")
 }
 
+func healthHandler(w http.ResponseWriter, r *http.Request){
+fmt.Fprintf(w, "pong")
+}
+
 var PORT string = os.Getenv("PORT")
 var ORIGIN string = os.Getenv("ORIGIN")
 
@@ -86,6 +90,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("GET /health", healthHandler)
 
 	router := cors(mux)
 	router = logging(router)

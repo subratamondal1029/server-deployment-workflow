@@ -89,8 +89,8 @@ jobs:
           set -e
           cd /opt/app
           chmod +x ./app
-          ls -l
-          docker --version
-          echo "copy is done"
+          
+          ./docker-run.sh "${{ github.run_number }}"
+          docker logs server
           EOF
 

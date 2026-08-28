@@ -13,8 +13,8 @@ Creating a server deployment workflow. with go, docker, github CI.
 5. GitHub CI creates a GitHub Release
    containing the built binary
                 ↓
-6. Production server downloads
-   the release artifact only
+6. Send the artifact file to server
+   with scp
                 ↓
 7. Server puts the binary into
    the Docker build directory
@@ -23,7 +23,8 @@ Creating a server deployment workflow. with go, docker, github CI.
    FROM scratch
    + copies the binary
                 ↓
-9. Stop/remove the old container (more then that)
+9. Stop/remove the old container
+   (with healthcheck new container)
                 ↓
 10. Start the new Docker container
                 ↓

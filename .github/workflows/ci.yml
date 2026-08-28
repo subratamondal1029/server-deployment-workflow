@@ -45,3 +45,28 @@ jobs:
             --repo "${{ github.repository }}" \
             --title "v${{ github.run_number }}" \
             --notes "Automated release from commit ${{ github.sha }}"
+
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Cloudflared
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install cloudflared -y
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github_ci
+          chmod 600 ~/.ssh/github_ci
+
+      - name: Run command in server
+        run: |
+          ssh \
+            -i ~/.ssh/github_ci \
+            -o StrictHostKeyChecking=no \
+            -o ProxyCommand="cloudflared access ssh --hostname %h" \
+            root@ssh.subratamondal.dev \
+            'echo "Connected"; whoami; hostname'
+

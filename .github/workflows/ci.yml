@@ -77,7 +77,7 @@ jobs:
             -i ~/.ssh/github_ci \
             -o StrictHostKeyChecking=no \
             -o ProxyCommand="cloudflared access ssh --hostname %h" \
-            app root@ssh.subratamondal.dev/opt/app/app
+            app root@ssh.subratamondal.dev:/opt/app/app
 
       - name: Run container in server
         run: |
